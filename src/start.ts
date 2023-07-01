@@ -3,8 +3,9 @@ import "express-async-errors";
 import logger from "loglevel";
 import { AddressInfo } from "net";
 import { getRoutes } from "./routes";
+import { env } from "./env";
 
-function startServer({ port = process.env.PORT } = {}) {
+function startServer() {
   const app = express();
 
   // enable json request body parsing
@@ -20,7 +21,7 @@ function startServer({ port = process.env.PORT } = {}) {
   // So this block of code allows me to start the express app and resolve the
   // promise with the express server
   return new Promise((resolve) => {
-    const server = app.listen(port, () => {
+    const server = app.listen(env.PORT, () => {
       logger.info(
         `Listening on port ${(server.address() as AddressInfo).port}`
       );
@@ -53,9 +54,7 @@ function errorMiddleware(error, req, res, next) {
     res.json({
       message: error.message,
       // we only add a `stack` property in non-production environments
-      ...(process.env.NODE_ENV === "production"
-        ? null
-        : { stack: error.stack }),
+      ...(env.NODE_ENV === "production" ? null : { stack: error.stack }),
     });
   }
 }
